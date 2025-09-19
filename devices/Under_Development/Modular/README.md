@@ -27,7 +27,26 @@ And if you believe the issue isn’t just user error, please report back. 😉
 After this, if there is a update, all you need to do is compile again.
 ```
 
+```markdown
+## 🚀 Running locally (optional)
+
+If you want to run and edit the Modular files locally:
+1. Create a directory in your esphome/ directory called "localtest" and copy core.yaml + display_pages.yaml there.
+2. Create a directory inside localtest/ called "HW" and copy the hardware file for your device there (eg. ball_v2_hw.yaml)
+3. change the packages in main yaml on the device to:
+
+packages:
+  core: !include localtest/core.yaml
+  hw:   !include localtest/HW/ball_v2_hw.yaml
+
+```
+Changes:
 ---
+### Modular v1.05
+- **Changes**  
+  - Added Rolex clockface (wallpaper) for analog clock
+  - Fixed Battery status not showing on analog clock and presence (if enabled)
+
 ### Modular v1.04
 - **Changes**  
   - Added Analog clock (yeah i know, why not)
@@ -35,7 +54,6 @@ After this, if there is a update, all you need to do is compile again.
     hardcoded swipe functions: left & right change clock style, down toggle battery, up change wallpaper.
   - Added light sensors for all 5 rooms and changed so presence shows a red LED dot. if light is on in room color is filled.
 
----
 ### Modular v1.03
 - **Changes**  
   -  added 2 more clocks, a presence sensor clock and a weather clock
@@ -46,10 +64,6 @@ After this, if there is a update, all you need to do is compile again.
   -  Example automation that changes clock type (left and right swipes), changes wallpaper (swipe up) and toggles battery status (swipe down) can be found in: /Under_Development/Home_Assistant_Automations/
   -  I did it this way so it's not a locked functionality and we can do whatever we want with the sensors.
 
----
-
-## Older versions of Modular can be found in /OLD/ if wanting to revert to a previous version.
-
 ### Modular core v1.01
 - **Fixes**  
   - fixed timer widget, fixed clock screensaver so it doesn't go on when timer is running
@@ -59,6 +73,11 @@ After this, if there is a update, all you need to do is compile again.
   - changed timer widget to new design. and removed 1 font (more memory saving ;)
   - removed removed 1 font, saved memory
   - moved micro wake words to main and left only "okay nabu" in core, this gives a wider selection of mmw's without loading all
+---
+
+## Older versions of Modular can be found in /OLD/ if wanting to revert to a previous version.
+
+---
 
 ## Previous Changes (before resetting to Modular 1.00)
 
