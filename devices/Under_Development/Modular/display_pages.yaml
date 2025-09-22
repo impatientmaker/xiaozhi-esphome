@@ -920,7 +920,7 @@
           // MUST be temp_fullscreen here:
           it.image(W / 2, H / 2, id(temp_fullscreen), ImageAlign::CENTER);
 
-      - id: presense_sensor_clock
+      - id: presence_sensor_clock
         lambda: |-
           const int W = it.get_width();
           const int H = it.get_height();
@@ -1477,8 +1477,8 @@
             }
           };
 
-          // ----- dial (if time shown) -----
-          if (id(clock_show_time).state) {
+          // ----- dial (if dots shown) -----
+          if (id(clock_show_dots).state) {
             it.circle(CX, CY, R,   RING);
             it.circle(CX, CY, R-2, FACE_ACC);
 

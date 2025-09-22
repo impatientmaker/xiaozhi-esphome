@@ -1,4 +1,4 @@
-# Core v1.05
+# Core v1.06
 
 substitutions:
   allowed_characters: >-
@@ -119,7 +119,7 @@ api:
                   id: temp_fullscreen
                   url: !lambda 'return url;'
                   update: true
-              - delay: 1200ms
+              - delay: 600ms
               - display.page.show: empty_clock
               - component.update: main_display
               - script.execute: reset_screensaver
@@ -330,26 +330,26 @@ binary_sensor:
     id: swipe_left
     name: "Swipe Left"
     device_class: moving
-    on_press: []
+    entity_category: diagnostic
 
   - platform: template
     id: swipe_right
     name: "Swipe Right"
     device_class: moving
-    on_press: []
-
+    entity_category: diagnostic
+    
   - platform: template
     id: swipe_up
     name: "Swipe Up"
     device_class: moving
-    on_press: []
-
+    entity_category: diagnostic
+    
   - platform: template
     id: swipe_down
     name: "Swipe Down"
     device_class: moving
-    on_press: []
-
+    entity_category: diagnostic
+    
   - platform: homeassistant
     id: ha_sensor1
     entity_id: ${sensor1_entity}
@@ -423,57 +423,6 @@ light:
     red: clock_color_r
     green: clock_color_g
     blue: clock_color_b
-
-media_player:
-  - platform: speaker
-    name: None
-    id: external_media_player
-    # HW pack must provide "speaker: box_speaker"
-    announcement_pipeline:
-      speaker: box_speaker
-      format: WAV
-      sample_rate: 16000
-      num_channels: 1
-    buffer_size: 250000
-    files:
-      - id: timer_finished_sound
-        file: https://github.com/RealDeco/xiaozhi-esphome/raw/main/sounds/timer_finished.flac
-      - id: wake_word_triggered_sound
-        file: https://github.com/RealDeco/xiaozhi-esphome/raw/main/sounds/wake_word_triggered.flac
-      - id: ready_sound
-        file: ${startup_sound_file}
-    on_announcement:
-      - if:
-          condition:
-            - microphone.is_capturing:
-          then:
-            - script.execute: stop_wake_word
-            - if:
-                condition:
-                  - lambda: return id(wake_word_engine_location).state == "In Home Assistant";
-                then:
-                  - wait_until:
-                      condition:
-                        - not:
-                            voice_assistant.is_running:
-      - if:
-          condition:
-            lambda: 'return id(playing_internal_sound);'
-          then:
-            - lambda: 'id(playing_internal_sound) = false;'
-          else:
-            - script.execute: reset_screensaver
-            - display.page.show: now_playing_page
-            - component.update: main_display
-    on_idle:
-      - if:
-          condition:
-            not:
-              voice_assistant.is_running:
-          then:
-            - script.execute: start_wake_word
-            - script.execute: set_idle_or_mute_phase
-            - script.execute: draw_display
 
 micro_wake_word:
   id: mww
@@ -554,8 +503,8 @@ voice_assistant:
           - and:
               - not:
                   media_player.is_announcing:
-              - not:
-                  speaker.is_playing:
+#              - not:
+#                  speaker.is_playing:
     - if:
         condition:
           - lambda: return id(wake_word_engine_location).state == "On device";
@@ -1042,7 +991,7 @@ script:
           } else if (sel == "Flip") {
             id(main_display).show_page(flip_clock);
           } else if (sel == "Presence") {
-            id(main_display).show_page(presense_sensor_clock);
+            id(main_display).show_page(presence_sensor_clock);
           } else if (sel == "Weather") {
             id(main_display).show_page(weather_clock);
           } else if (sel == "Small") {
@@ -1098,6 +1047,40 @@ script:
     then:
       - switch.toggle: show_battery_status
       - script.execute: draw_display
+
+  - id: pulse_swipe_left
+    mode: restart
+    then:
+      - binary_sensor.template.publish: { id: swipe_left,  state: ON }
+      - delay: 150ms
+      - binary_sensor.template.publish: { id: swipe_left,  state: OFF }
+
+  - id: pulse_swipe_right
+    mode: restart
+    then:
+      - binary_sensor.template.publish: { id: swipe_right, state: ON }
+      - delay: 150ms
+      - binary_sensor.template.publish: { id: swipe_right, state: OFF }
+
+  - id: pulse_swipe_up
+    mode: restart
+    then:
+      - binary_sensor.template.publish: { id: swipe_up,    state: ON }
+      - delay: 150ms
+      - binary_sensor.template.publish: { id: swipe_up,    state: OFF }
+
+  - id: pulse_swipe_down
+    mode: restart
+    then:
+      - binary_sensor.template.publish: { id: swipe_down,  state: ON }
+      - delay: 150ms
+      - binary_sensor.template.publish: { id: swipe_down,  state: OFF }
+
+  - id: pulse_touch_input
+    then:
+      - binary_sensor.template.publish: { id: touch_input, state: ON }
+      - delay: 150ms
+      - binary_sensor.template.publish: { id: touch_input, state: OFF }
 
 switch:
   - platform: template
