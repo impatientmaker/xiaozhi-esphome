@@ -54,7 +54,8 @@ ota:
     id: ota_esphome
 
 logger:
-  hardware_uart: USB_SERIAL_JTAG
+  level: DEBUG
+#  hardware_uart: USB_SERIAL_JTAG
 
 wifi:
   ssid: !secret wifi_ssid
