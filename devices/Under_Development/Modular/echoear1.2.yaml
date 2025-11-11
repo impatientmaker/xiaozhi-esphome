@@ -1,13 +1,13 @@
 substitutions:
-  name: esphome-web-616450
-  friendly_name: xingzhi-cube-1.54
+  name: esphome-web-aec6f4
+  friendly_name: echoear
 
 ## Modular version Main v1.08
 
 ## SETTINGS ######################################################################################################################################
 
-  imagewidth:  "240"
-  imageheight: "240"
+  imagewidth:  "360"
+  imageheight: "360"
   rotate_display: "0"
 
   startup_sound: "Home_Connected" # (options are: available, Home_Connected, Home_Connected_Male, Computer_Ready)
@@ -39,6 +39,7 @@ substitutions:
   light5_entity: "switch.nedis_smart_plug_tasmota1"
   sensor5_label: "Hall"
 
+
   weather_entity: "weather.forecast_home"
 
 ##################################################################################################################################################
@@ -48,7 +49,7 @@ substitutions:
 
 esp32:
   board: esp32-s3-devkitc-1
-  flash_size: 16MB
+  flash_size: 32MB
   cpu_frequency: 240MHz
   framework:
     type: esp-idf
@@ -67,21 +68,21 @@ packages:
   core:
     url: https://github.com/RealDeco/xiaozhi-esphome.git
     ref: main
-    refresh: 1d
+    refresh: 1h
     files:
       - devices/Under_Development/Modular/core.yaml
   hw:
     url: https://github.com/RealDeco/xiaozhi-esphome.git
     ref: main
-    refresh: 1d
+    refresh: 1h
     files:
-      - devices/Under_Development/Modular/HW/xingzhi-cube-1.54_hw.yaml
+      - devices/Under_Development/Modular/HW/echoear_1.2_hw.yaml
 
 ### USE LOCAL MODULES (read description https://github.com/RealDeco/xiaozhi-esphome/blob/main/devices/Under_Development/Modular/README.md) #######
 
 #packages: # Local
 #  core: !include localtest/core.yaml
-#  hw:   !include localtest/HW/xingzhi-cube-1.54_hw.yaml
+#  hw:   !include localtest/HW/echoear_1.2_hw.yaml
 
 ## ENABLE / DISABLE WAKE WORDS ## IF LOW ON MEMORY, USE LESS WAKE WORDS ##########################################################################
 

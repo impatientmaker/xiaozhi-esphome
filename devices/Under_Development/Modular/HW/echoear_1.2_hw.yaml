@@ -1,36 +1,55 @@
-# waveshare 3.49 hardware pack v1.08
 
-esphome:
-  on_boot:
-    - priority: 700
-      then:
-        - switch.turn_on: sys_en_hold
+# EchoEar hardware pack v1.08
 
-pca9554:
-  - id: pca9554a_device
-    address: 0x20
-    i2c_id: bus_a
+power_supply:
+  - id: vcc3v3_sw
+    pin:
+      number: GPIO9
+      inverted: true
+    enable_time: 150ms
+    enable_on_boot: true
+
+  - id: codec_3v3
+    pin: GPIO48
+    enable_time: 150ms
+    enable_on_boot: true
 
 # --- BUSES / PERIPHERALS ------------------------------------------------------
 i2c:
   - id: bus_a
-    scl: GPIO48
-    sda: GPIO47
+    scl: GPIO1
+    sda: GPIO2
+    frequency: 100kHz
     scan: true
-  - id: bus_b
-    scl: GPIO18
-    sda: GPIO17
-    scan: true
-    frequency: 400kHz
+
+i2s_audio:
+  - id: i2s_audio_bus
+    i2s_lrclk_pin: GPIO39
+    i2s_bclk_pin: GPIO40
+    i2s_mclk_pin: GPIO42
+
+audio_adc:
+  - platform: es7210
+    i2c_id: bus_a
+    id: es7210_adc
+    bits_per_sample: 16bit
+    sample_rate: 16000
+
+audio_dac:
+  - platform: es8311
+    i2c_id: bus_a
+    id: es8311_dac
+    bits_per_sample: 16bit
+    sample_rate: 48000
 
 # --- TOUCHSCREEN --------------------------------------------------------------
 touchscreen:
-  - platform: axs15231
+  - platform: cst816
     id: my_touchscreen
-    i2c_id: bus_b
-    address: 0x3b
-    update_interval: 10ms
+    interrupt_pin: GPIO10
+#    reset_pin: GPIO40
     display: main_display
+    i2c_id: bus_a
 
     on_touch:
       then:
@@ -85,8 +104,16 @@ touchscreen:
             const int TAP_FB_DIST  = std::max(14, min_dim / 12);
             const uint32_t TAP_FB_TIME = 700;
 
-            const int ndx = -dx;
-            const int ndy = -dy;
+            // Normalize for display rotation
+            const int ROT = ${rotate_display};
+            int ndx = dx, ndy = dy;
+            switch (ROT) {
+              case 0:   break;
+              case 90:  ndx =  dy;  ndy = -dx; break;
+              case 180: ndx = -dx;  ndy = -dy; break;
+              case 270: ndx = -dy;  ndy =  dx; break;
+              default: break;
+            }
 
             const int absx = std::abs(ndx);
             const int absy = std::abs(ndy);
@@ -129,8 +156,8 @@ touchscreen:
 output:
   - platform: ledc
     id: backlight_output
-    pin: GPIO8
-    inverted: true
+    pin: GPIO44
+    inverted: false
 
 light:
   - platform: monochromatic
@@ -145,54 +172,22 @@ light:
 # --- AUDIO DEVICES ------------------------------------------------------------
 switch:
   - platform: gpio
-    id: sys_en_hold
-    pin:
-      pca9554: pca9554a_device
-      number: 6
-      mode: OUTPUT
-    restore_mode: RESTORE_DEFAULT_OFF
-
-  - platform: gpio
     name: Speaker Enable
     icon: "mdi:speaker"
     entity_category: config
-    pin: GPIO42
+    pin: GPIO15
     restore_mode: RESTORE_DEFAULT_ON
-
   - platform: gpio
-    name: Speaker Switch
-    icon: "mdi:speaker"
-    entity_category: config
+    name: "Top Green LED"
     pin:
-      pca9554: pca9554a_device
-      number: 7
-    restore_mode: RESTORE_DEFAULT_ON
-
-i2s_audio:
-  - id: i2s_audio_bus
-    i2s_lrclk_pin: GPIO46
-    i2s_bclk_pin: GPIO15
-    i2s_mclk_pin: GPIO7
-
-audio_adc:
-  - platform: es7210
-    i2c_id: bus_a
-    id: es7210_adc
-    bits_per_sample: 16bit
-    sample_rate: 16000
-
-audio_dac:
-  - platform: es8311
-    i2c_id: bus_a
-    id: es8311_dac
-    bits_per_sample: 16bit
-    sample_rate: 48000
+      number: GPIO43
+      inverted: true
 
 microphone:
   - platform: i2s_audio
     id: box_mic
     i2s_audio_id: i2s_audio_bus
-    i2s_din_pin: GPIO6
+    i2s_din_pin: GPIO3
     adc_type: external
     channel: left
     pdm: false
@@ -203,48 +198,23 @@ speaker:
   - platform: i2s_audio
     id: box_speaker
     i2s_audio_id: i2s_audio_bus
-    i2s_dout_pin: GPIO45
+    i2s_dout_pin: GPIO41
     dac_type: external
+    audio_dac: es8311_dac
     sample_rate: 48000
     channel: mono
-    audio_dac: es8311_dac
-    buffer_duration: 300ms
 
-  - platform: mixer
-    id: mixing_speaker
-    output_speaker: box_speaker
-    source_speakers:
-      - id: announcement_mixing_input
-      - id: media_mixing_input
-
-  - platform: resampler
-    id: announcement_resampling_speaker
-    output_speaker: announcement_mixing_input
-    sample_rate: 48000
-
-  - platform: resampler
-    id: media_resampling_speaker
-    output_speaker: media_mixing_input
-    sample_rate: 48000
-    
 media_player:
   - platform: speaker
+    volume_min: 0.5
+    volume_max: 0.7 # don't go higher than 0.8
     name: None
     id: external_media_player
-    volume_increment: 0.05
-    volume_min: 0.5
-    volume_max: 0.8
     announcement_pipeline:
-      speaker: announcement_resampling_speaker
+      speaker: box_speaker
       format: FLAC
-      sample_rate: 16000
-      num_channels: 1
-
-    media_pipeline:
-      speaker: media_resampling_speaker
-      format: FLAC
-      num_channels: 1
       sample_rate: 48000
+      num_channels: 1
     buffer_size: 250000
 
     on_announcement:
@@ -261,7 +231,6 @@ media_player:
                       condition:
                         - not:
                             voice_assistant.is_running:
-
       - if:
           condition:
             lambda: 'return id(playing_internal_sound);'
@@ -271,32 +240,6 @@ media_player:
             - script.execute: reset_screensaver
             - display.page.show: now_playing_page
             - component.update: main_display
-
-    on_play:
-      - if:
-          condition:
-            - microphone.is_capturing:
-          then:
-            - script.execute: stop_wake_word
-            - if:
-                condition:
-                  - lambda: return id(wake_word_engine_location).state == "In Home Assistant";
-                then:
-                  - wait_until:
-                      condition:
-                        - not:
-                            voice_assistant.is_running:
-
-      - if:
-          condition:
-            lambda: 'return id(playing_internal_sound);'
-          then:
-            - lambda: 'id(playing_internal_sound) = false;'
-          else:
-            - script.execute: reset_screensaver
-            - display.page.show: now_playing_page
-            - component.update: main_display
-
     on_idle:
       - if:
           condition:
@@ -316,59 +259,86 @@ media_player:
         file: ${startup_sound_file}
 
 
+
 # --- BATTERY (FAKE SOURCE TO KEEP WIDGET HAPPY) -------------------------------
 sensor:
-  - platform: adc
-    pin: GPIO4
-    name: "Battery Voltage"
+  - platform: template
     id: battery_voltage
-    attenuation: 12db
-    accuracy_decimals: 2
-    update_interval: 10s
+    name: "Battery Voltage"
     unit_of_measurement: "V"
-    icon: mdi:battery-medium
-    filters:
-      - multiply: 3.0
-      - median:
-          window_size: 7
-          send_every: 7
-          send_first_at: 1
-      - throttle: 1min
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
     on_value:
       then:
         - sensor.template.publish:
             id: battery_percentage
             state: !lambda 'return x;'
 
+interval:
+  - interval: 60s        # safe poll rate for the BQ27220
+    then:
+      - lambda: |-
+          using esphome::i2c::ERROR_OK;
+          constexpr uint8_t BQ_ADDR = 0x55;
+          constexpr uint8_t REG_VOLTAGE = 0x08;  // Voltage() command
+
+          // write register, then read 2 bytes (little-endian mV)
+          uint8_t reg = REG_VOLTAGE;
+          uint8_t rx[2] = {0};
+
+          if (id(bus_a)->write(BQ_ADDR, &reg, 1) != ERROR_OK) {
+            ESP_LOGW("bq27220", "I2C write failed");
+            return;
+          }
+          delayMicroseconds(200);
+          if (id(bus_a)->read(BQ_ADDR, rx, 2) != ERROR_OK) {
+            ESP_LOGW("bq27220", "I2C read failed");
+            return;
+          }
+
+          uint16_t mv = (uint16_t(rx[1]) << 8) | rx[0];  // little-endian
+          id(battery_voltage).publish_state(mv / 1000.0f);
+
+esp32_touch:
+  setup_mode: false
+  measurement_duration: 0.25ms
+  sleep_duration: 0.5ms
+
 binary_sensor:
-  - platform: gpio
-    id: pwr_button
-    name: "PWR Button"
-    pin:
-      number: GPIO16
-      inverted: true
-    on_multi_click:
-      - timing:
-          - ON for at least 1s
-        then:
-          - switch.turn_off: sys_en_hold
-          - logger.log: "PWR long-press: power OFF"
+  - platform: esp32_touch
+    id: top_touch_pad1
+    name: "Top Touch Pad 1"
+    pin: GPIO6
+    threshold: 2000
+    filters:
+      - delayed_on: 15ms
+      - delayed_off: 60ms
+  - platform: esp32_touch
+    id: top_touch_pad2
+    name: "Top Touch Pad 2"
+    pin: GPIO7
+    threshold: 2000
+    filters:
+      - delayed_on: 15ms
+      - delayed_off: 60ms
 
 # --- DISPLAY DRIVER (MIPI SPI JC3636W518) ------------------------------------
-external_components:
-  - source: github://pr#11226
-    components: [display, mipi, mipi_spi]
-    refresh: 1h
-
 spi:
   id: display_qspi
   type: quad
-  clk_pin: 10
-  data_pins: [11, 12, 13, 14]
+  clk_pin: 18
+  data_pins: [46, 13, 11, 12]
 
 display:
   - platform: mipi_spi
     id: main_display
-    model: WAVESHARE-ESP32-S3-TOUCH-LCD-3.49
+    model: JC3636W518V2
+    cs_pin: 14
+    reset_pin: 4
     rotation: ${rotate_display}
+    update_interval: never
+    dimensions:
+        height: ${imageheight}
+        width: ${imagewidth}
     pages: !include ../display_pages.yaml

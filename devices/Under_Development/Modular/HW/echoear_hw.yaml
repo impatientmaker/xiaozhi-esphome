@@ -1,11 +1,25 @@
 
-# EchoEar hardware pack v1.07
+# EchoEar hardware pack v1.08
+
+power_supply:
+  - id: vcc3v3_sw
+    pin:
+      number: GPIO9
+      inverted: true
+    enable_time: 150ms
+    enable_on_boot: true
+
+  - id: codec_3v3
+    pin: GPIO48
+    enable_time: 150ms
+    enable_on_boot: true
 
 # --- BUSES / PERIPHERALS ------------------------------------------------------
 i2c:
   - id: bus_a
     scl: GPIO1
     sda: GPIO2
+    frequency: 100kHz
     scan: true
 
 i2s_audio:
@@ -168,11 +182,6 @@ switch:
     pin:
       number: GPIO43
       inverted: true
-  - platform: gpio
-    name: "Power"
-    pin: GPIO9
-    restore_mode: RESTORE_DEFAULT_ON
-    inverted: true
 
 microphone:
   - platform: i2s_audio
@@ -197,6 +206,8 @@ speaker:
 
 media_player:
   - platform: speaker
+    volume_min: 0.5
+    volume_max: 0.7 # don't go higher than 0.8
     name: None
     id: external_media_player
     announcement_pipeline:
@@ -296,8 +307,16 @@ esp32_touch:
 
 binary_sensor:
   - platform: esp32_touch
-    id: top_touch_pad
-    name: "Top Touch Pad"
+    id: top_touch_pad1
+    name: "Top Touch Pad 1"
+    pin: GPIO6
+    threshold: 2000
+    filters:
+      - delayed_on: 15ms
+      - delayed_off: 60ms
+  - platform: esp32_touch
+    id: top_touch_pad2
+    name: "Top Touch Pad 2"
     pin: GPIO7
     threshold: 2000
     filters:
