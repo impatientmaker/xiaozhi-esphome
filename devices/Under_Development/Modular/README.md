@@ -1,12 +1,14 @@
 
-<img width="1600" height="950" alt="esphome-yaml-layout-pro-v8" src="https://github.com/user-attachments/assets/92c246d2-295a-4a11-8c03-87963034dcd6" />
+<img width="1600" height="950" alt="esphome-yaml-layout-pro-v8" src="https://github.com/user-attachments/assets/d9d11428-0f0f-4900-b30c-21c989c6bfba" />
 
-This section is for those that tried the standard full yaml in the respective directories and everything works, but want more ;)
+This section is for users who have **already tried the standard full YAML**, followed the installation instructions on the main page, and are familiar with the general setup process.
+Because of that, the instructions here are kept to the **bare minimum**.
 
-Those that just want the basics code to modify might find it easier to use the non-modular yamls.
+It’s also the place where **new boards** are introduced first—often in an **alpha or beta stage**—before eventually being added to the main device list (when time allows).
 
-👉 If you try this and run into problems, please revert to the known working non-modular YAMLs.
-And if you believe the issue isn’t just user error, please report back. 😉
+👉 **If you try this and run into problems, please return to the known-working non-modular YAMLs.**
+If you believe the issue isn’t just user error, please report it. 😉
+
 
 ---
 
@@ -31,7 +33,8 @@ After this, if there is a update, all you need to do is compile again.
 ## 🚀 Running locally (optional)
 
 If you want to run and edit the Modular files locally:
-1. Create a directory in your esphome/ directory called "localtest" and copy core.yaml + display_pages.yaml there.
+1. Create a directory in your esphome/ directory called "localtest" and copy core.yaml + display_pages.yaml +
+clocks-standard.yaml there.
 2. Create a directory inside localtest/ called "HW" and copy the hardware file for your device there (eg. ball_v2_hw.yaml)
 3. change the packages in main yaml on the device to:
 
@@ -42,6 +45,50 @@ packages:
 ```
 Changes:
 ---
+
+### Modular v1.12
+
+* **Changes**
+
+  * Integrated the new **SENDSPIN** protocol for a limited number of devices for those who want to test it.
+    Currently supported:
+
+    * Guitions 1.80" Taichi Pi (V1)
+    * Guitions 1.80" Taichi Pi (V2)
+    * Spotpear Ball V2
+    * Breadboard Mini aka. "little purple"
+    * Waveshare 1.85C (V1)
+    * Guition P4 4.3
+    * Waveshare P4 4.0 86-ETH
+    * Waveshare 1.75 Amoled
+
+  * These devices were selected due to the popularity of the *Ball* and the usability of the Guitions boards (stereo jack output), and breadboard mini because it's so cheap everyone can play along.
+
+  * If you have a specific device from the project that you’d like to test, feel free to ask.
+
+  * Supports multi-room syncing, album cover art, artist name, and track title display.
+
+### Modular v1.11
+- **Changes**
+  - added more option to main yaml:
+
+    screensize: this is for compability with larger displays, should be the same as imagesize for smaller displays.
+
+    imagepath: either github or local so it's easier to add own images. this path affect both model images and wallpaper.
+
+
+### Modular v1.10
+- **Changes**
+  - added EVENTS for phase id, request text and response text, this makes it easier to play audio on another mediaplayer, or show
+    graphics on other displays or dashboards.
+  - fixed pipeline to react the same with both single and dual i2s devices, sometimes if would show idle when listening.
+  - added the ESP32-P4 series to the family, adjusting clocks to this bigger size displays will be a work in progress.
+  - moved clock and wallpaper selectors to external file, so very small or very wide displays can have their own.
+
+### Modular v1.09
+- **Changes**
+  - minor changes and bugfixes
+
 ### Modular v1.08
 - **Changes**
   - Updated most devices for mipi spi display drivers
@@ -88,9 +135,6 @@ Changes:
   - moved micro wake words to main and left only "okay nabu" in core, this gives a wider selection of mmw's without loading all
 ---
 
-## Older versions of Modular can be found in /OLD/ if wanting to revert to a previous version.
-
----
 
 ## Previous Changes (before resetting to Modular 1.00)
 

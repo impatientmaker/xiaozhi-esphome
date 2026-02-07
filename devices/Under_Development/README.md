@@ -6,15 +6,8 @@ Welcome! Here you'll find my **work-in-progress code** for all devices i current
 * **`Modular`**
   Modular yaml for almost all devices.
 
-* **`Older_Versions`**
-  Older versione left for those that want to revert
-
-* **`Waveshare-3.5-basic.yaml`**
-  For Waveshare esp32-s3-touch-lcd-3.5 (partly working)
-
-* **`Waveshare_Wrist_Watch.yaml`**
-  For Waveshare ESP32-S3-Touch-AMOLED-2.06 Watch. (basic code)
-
+* **`testing`**
+  Test files and basic examples
 
 ---
 

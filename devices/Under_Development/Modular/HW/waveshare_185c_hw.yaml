@@ -1,4 +1,8 @@
-# Waveshare ESP32-S3-Touch-LCD-1.85C / 1.85C-BOX hardware pack. v1.07
+# Waveshare ESP32-S3-Touch-LCD-1.85C / 1.85C-BOX hardware pack. v1.10
+
+# --- CLOCKS PACKAGE -----------------------------------------------------------
+packages:
+  clocks: !include ../clocks-standard.yaml
 
 # --- BUSES / PERIPHERALS ------------------------------------------------------
 spi:
@@ -186,7 +190,8 @@ touchscreen:
               case 270: ndx = -dy;  ndy =  dx; break;
               default: break;
             }
-
+            ndx = -ndx;
+            ndy = -ndy;
             const int absx = std::abs(ndx);
             const int absy = std::abs(ndy);
 
